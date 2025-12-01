@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV and Cover Letter Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-section {
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .dynamic-section-item {
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button, .action-btn {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+        button:hover, .action-btn:hover {
+            background-color: #004494;
+        }
+        .remove-btn {
+            background-color: #d9534f;
+        }
+        .remove-btn:hover {
+            background-color: #c9302c;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-group input {
+            flex-grow: 1;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CV and Cover Letter Generator</h1>
+        <p style="text-align: center;">Fill in the form below to generate your personalized CV and Cover Letter. Then, click the "Download" button at the bottom.</p>
+
+        <form id="generator-form">
+            <div class="form-section">
+                <h2>Common Information</h2>
+                <div class="grid">
+                    <div><label for="full_name">Full Name</label><input type="text" id="full_name" name="full_name" value="John Doe"></div>
+                    <div><label for="email">Email</label><input type="email" id="email" name="email" value="john.doe@example.com"></div>
+                    <div><label for="phone_number">Phone Number</label><input type="text" id="phone_number" name="phone_number" value="+34 123 456 789"></div>
+                    <div><label for="address">Address</label><input type="text" id="address" name="address" value="Madrid, Spain"></div>
+                </div>
+                <label for="linkedin_profile">LinkedIn Profile</label><input type="text" id="linkedin_profile" name="linkedin_profile" value="https://linkedin.com/in/johndoe">
+            </div>
+
+            <div class="form-section">
+                <h2>CV: Summary</h2>
+                <textarea id="summary" name="summary" rows="4">Results-oriented professional with a background in [Your Field] and a proven ability to adapt to new challenges. Seeking to leverage strong analytical and problem-solving skills in a new industry.</textarea>
+            </div>
+
+            <div class="form-section">
+                <h2>CV: Work Experience</h2>
+                <div id="work-experience-container"></div>
+                <button type="button" class="action-btn" onclick="addWorkExperience()">Add Work Experience</button>
+            </div>
+
+            <div class="form-section">
+                <h2>CV: Education</h2>
+                <div id="education-container"></div>
+                <button type="button" class="action-btn" onclick="addEducation()">Add Education</button>
+            </div>
+
+            <div class="form-section">
+                <h2>CV: Skills & Languages</h2>
+                <div class="grid">
+                    <div>
+                        <h3>Skills</h3>
+                        <div id="skills-container"></div>
+                        <button type="button" class="action-btn" onclick="addSkill()">Add Skill</button>
+                    </div>
+                    <div>
+                        <h3>Languages</h3>
+                        <div id="languages-container"></div>
+                        <button type="button" class="action-btn" onclick="addLanguage()">Add Language</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Cover Letter Information</h2>
+                <div class="grid">
+                    <div><label for="date">Date</label><input type="text" id="date" name="date" value="December 1, 2025"></div>
+                    <div><label for="hiring_manager_name">Hiring Manager Name</label><input type="text" id="hiring_manager_name" name="hiring_manager_name" value="Hiring Manager"></div>
+                    <div><label for="company_name">Company Name</label><input type="text" id="company_name" name="company_name" value="Acme Corporation"></div>
+                    <div><label for="company_address">Company Address</label><input type="text" id="company_address" name="company_address" value="123 Business Rd, Business City, 12345"></div>
+                </div>
+                <label for="job_title_applied_for">Job Title Applied For</label><input type="text" id="job_title_applied_for" name="job_title_applied_for" value="Customer Service Representative">
+                
+                <h3>Relevant Skills</h3>
+                <div id="relevant-skills-container"></div>
+                <button type="button" class="action-btn" onclick="addRelevantSkill()">Add Relevant Skill</button>
+
+                <label for="previous_experience_highlight">Previous Experience Highlight</label><input type="text" id="previous_experience_highlight" name="previous_experience_highlight" value="effective teamwork and communication">
+                <label for="platform">Platform where you saw the ad</label><input type="text" id="platform" name="platform" value="LinkedIn">
+                <label for="company_specifics">Specifics about the company</label><textarea id="company_specifics" name="company_specifics" rows="3">its commitment to innovation</textarea>
+                <label for="why_interested">Reason for interest in the role</label><textarea id="why_interested" name="why_interested" rows="3">the opportunity to apply my skills in a new and challenging environment</textarea>
+            </div>
+
+            <button type="submit">Download CV and Cover Letter as PDF</button>
+        </form>
+    </div>
+
+    <script>
+        // TEMPLATES
+        const cvTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>CV of {{full_name}}</title><style>body{font-family:'Segoe UI',sans-serif;line-height:1.6;color:#333;background-color:#f4f4f4;margin:0;padding:0;}.container{max-width:800px;margin:20px auto;background:#fff;padding:30px;border-radius:8px;box-shadow:0 0 15px rgba(0,0,0,0.1);}h1,h2,h3{color:#0056b3;margin-bottom:10px;}h1{text-align:center;border-bottom:2px solid #0056b3;padding-bottom:10px;margin-bottom:20px;}.contact-info{text-align:center;margin-bottom:20px;}.contact-info p{margin:2px 0;}.section{margin-bottom:20px;}.section h2{border-bottom:1px solid #ccc;padding-bottom:5px;}.job,.education{margin-bottom:15px;}.job h3,.education h3{margin-bottom:5px;}.job .period,.education .period{font-style:italic;color:#666;}ul{padding-left:20px;}</style></head><body><div class="container"><h1>{{full_name}}</h1><div class="contact-info"><p>{{address}}</p><p>Email: <a href="mailto:{{email}}">{{email}}</a> | Phone: {{phone_number}}</p><p>LinkedIn: <a href="{{linkedin_profile}}">{{linkedin_profile}}</a></p></div><div class="section"><h2>Summary</h2><p>{{summary}}</p></div>{{work_experience_section}}{{education_section}}{{skills_languages_section}}</div></body></html>`;
+        const workExperienceSectionTemplate = `<div class="section"><h2>Work Experience</h2>{{work_experience_entries}}</div>`;
+        const workExperienceEntryTemplate = `<div class="job"><h3>{{job_title}}</h3><p><strong>{{company}}</strong></p><p class="period">{{period}}</p><ul><li>{{description_1}}</li><li>{{description_2}}</li></ul></div>`;
+        const educationSectionTemplate = `<div class="section"><h2>Education</h2>{{education_entries}}</div>`;
+        const educationEntryTemplate = `<div class="education"><h3>{{degree}}</h3><p><strong>{{university}}</strong></p><p class="period">{{period}}</p></div>`;
+        const skillsLanguagesSectionTemplate = `<div class="section"><h2>Skills & Languages</h2><div style="display: flex;"><div style="width: 50%;"><h3>Skills</h3><ul>{{skills}}</ul></div><div style="width: 50%;"><h3>Languages</h3><ul>{{languages}}</ul></div></div></div>`;
+        const listItemTemplate = `<li>{{item}}</li>`;
+
+        const coverLetterTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Cover Letter for {{job_title_applied_for}}</title><style>body{font-family:'Segoe UI',sans-serif;line-height:1.6;color:#333;background-color:#f4f4f4;margin:0;padding:0;}.container{max-width:800px;margin:20px auto;background:#fff;padding:30px;border-radius:8px;box-shadow:0 0 15px rgba(0,0,0,0.1);}.header{text-align:right;margin-bottom:30px;}.header h1{margin:0;color:#0056b3;}.header p{margin:2px 0;}.recipient-info{margin-bottom:20px;}.body-text{text-align:justify;}</style></head><body><div class="container"><div class="header"><h1>{{full_name}}</h1><p>{{address}}</p><p>{{phone_number}}</p><p>{{email}}</p><p>Date: {{date}}</p></div><div class="recipient-info"><p>{{hiring_manager_name}}</p><p>{{company_name}}</p><p>{{company_address}}</p></div><div class="body-text"><p><strong>Dear {{hiring_manager_name}},</strong></p><p>I am writing to express my keen interest in the <strong>{{job_title_applied_for}}</strong> position at <strong>{{company_name}}</strong>, which I discovered through {{platform}}. Having followed your company's work for some time, I am impressed by {{company_specifics}}.</p><p>While my professional background is in software development, I have cultivated a strong set of transferable skills that I am confident would make me a valuable asset to your team. My experience has honed my abilities in areas such as {{relevant_skills}}, which I believe are directly applicable to the responsibilities outlined in the job description.</p><p>My experience has also taught me the importance of {{previous_experience_highlight}}. I am a dedicated and fast learner, eager to apply my problem-solving abilities in a new context and contribute to a team outside of the software industry. I am particularly drawn to this role at {{company_name}} because {{why_interested}}.</p><p>I am eager to discuss how my unique background and dedication can benefit your team. Thank you for your time and consideration. I have attached my CV for your review and look forward to hearing from you soon.</p><p>Sincerely,</p><p>{{full_name}}</p></div></div></body></html>`;
+
+        // DYNAMIC FORM LOGIC
+        function addWorkExperience() {
+            const container = document.getElementById('work-experience-container');
+            const index = container.children.length;
+            const newItem = document.createElement('div');
+            newItem.className = 'dynamic-section-item work-experience-item';
+            newItem.innerHTML = `
+                <div class="grid">
+                    <div><label>Job Title</label><input type="text" name="job_title_${index}" value="Job Title"></div>
+                    <div><label>Company</label><input type="text" name="company_${index}" value="Company"></div>
+                </div>
+                <label>Period</label><input type="text" name="job_period_${index}" value="Jan 2022 - Dec 2023">
+                <label>Description Point 1</label><input type="text" name="job_description_${index}_1" value="Responsibility 1">
+                <label>Description Point 2</label><input type="text" name="job_description_${index}_2" value="Responsibility 2">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function addEducation() {
+            const container = document.getElementById('education-container');
+            const index = container.children.length;
+            const newItem = document.createElement('div');
+            newItem.className = 'dynamic-section-item education-item';
+            newItem.innerHTML = `
+                <div class="grid">
+                    <div><label>Degree</label><input type="text" name="degree_${index}" value="Degree"></div>
+                    <div><label>University</label><input type="text" name="university_${index}" value="University"></div>
+                </div>
+                <label>Period</label><input type="text" name="education_period_${index}" value="2018 - 2022">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(newItem);
+        }
+
+        function createGenericAddItem(containerId, inputName, defaultValue) {
+            const container = document.getElementById(containerId);
+            const newItem = document.createElement('div');
+            newItem.className = 'input-group';
+            newItem.innerHTML = `
+                <input type="text" class="${inputName}-input" value="${defaultValue}">
+                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            container.appendChild(newItem);
+        }
+        
+        function addSkill() { createGenericAddItem('skills-container', 'skill', 'New Skill'); }
+        function addLanguage() { createGenericAddItem('languages-container', 'language', 'New Language'); }
+        function addRelevantSkill() { createGenericAddItem('relevant-skills-container', 'relevant-skill', 'New Relevant Skill'); }
+
+        // Initialize with one of each item
+        window.onload = () => {
+            addWorkExperience();
+            addEducation();
+            addSkill();
+            addLanguage();
+            addRelevantSkill();
+        };
+
+        // SUBMIT AND PROCESS
+        document.getElementById('generator-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const data = gatherData();
+            
+            // Process CV
+            const processedCv = processCvTemplate(data);
+            downloadAsPDF(processedCv, `CV_${data.full_name.replace(' ', '_')}.pdf`);
+
+            // Process Cover Letter
+            const processedCoverLetter = processCoverLetterTemplate(data);
+            downloadAsPDF(processedCoverLetter, `Cover_Letter_${data.full_name.replace(' ', '_')}.pdf`);
+        });
+
+        function gatherData() {
+            const data = {
+                full_name: document.getElementById('full_name').value,
+                email: document.getElementById('email').value,
+                phone_number: document.getElementById('phone_number').value,
+                address: document.getElementById('address').value,
+                linkedin_profile: document.getElementById('linkedin_profile').value,
+                summary: document.getElementById('summary').value,
+                date: document.getElementById('date').value,
+                hiring_manager_name: document.getElementById('hiring_manager_name').value,
+                company_name: document.getElementById('company_name').value,
+                company_address: document.getElementById('company_address').value,
+                job_title_applied_for: document.getElementById('job_title_applied_for').value,
+                previous_experience_highlight: document.getElementById('previous_experience_highlight').value,
+                platform: document.getElementById('platform').value,
+                company_specifics: document.getElementById('company_specifics').value,
+                why_interested: document.getElementById('why_interested').value,
+                work_experiences: [],
+                educations: [],
+                skills: Array.from(document.querySelectorAll('.skill-input')).map(i => i.value),
+                languages: Array.from(document.querySelectorAll('.language-input')).map(i => i.value),
+                relevant_skills: Array.from(document.querySelectorAll('.relevant-skill-input')).map(i => i.value)
+            };
+
+            document.querySelectorAll('.work-experience-item').forEach((item, index) => {
+                data.work_experiences.push({
+                    job_title: item.querySelector(`[name="job_title_${index}"]`).value,
+                    company: item.querySelector(`[name="company_${index}"]`).value,
+                    period: item.querySelector(`[name="job_period_${index}"]`).value,
+                    description_1: item.querySelector(`[name="job_description_${index}_1"]`).value,
+                    description_2: item.querySelector(`[name="job_description_${index}_2"]`).value,
+                });
+            });
+
+            document.querySelectorAll('.education-item').forEach((item, index) => {
+                data.educations.push({
+                    degree: item.querySelector(`[name="degree_${index}"]`).value,
+                    university: item.querySelector(`[name="university_${index}"]`).value,
+                    period: item.querySelector(`[name="education_period_${index}"]`).value,
+                });
+            });
+            return data;
+        }
+
+        function processCvTemplate(data) {
+            let template = cvTemplate;
+
+            const workExperienceEntries = data.work_experiences.map(exp => {
+                return workExperienceEntryTemplate
+                    .replace('{{job_title}}', exp.job_title)
+                    .replace('{{company}}', exp.company)
+                    .replace('{{period}}', exp.period)
+                    .replace('{{description_1}}', exp.description_1)
+                    .replace('{{description_2}}', exp.description_2);
+            }).join('');
+            const workExperienceSection = workExperienceEntries ? workExperienceSectionTemplate.replace('{{work_experience_entries}}', workExperienceEntries) : '';
+            template = template.replace('{{work_experience_section}}', workExperienceSection);
+
+            const educationEntries = data.educations.map(edu => {
+                return educationEntryTemplate
+                    .replace('{{degree}}', edu.degree)
+                    .replace('{{university}}', edu.university)
+                    .replace('{{period}}', edu.period);
+            }).join('');
+            const educationSection = educationEntries ? educationSectionTemplate.replace('{{education_entries}}', educationEntries) : '';
+            template = template.replace('{{education_section}}', educationSection);
+
+            const skills = data.skills.map(s => listItemTemplate.replace('{{item}}', s)).join('');
+            const languages = data.languages.map(l => listItemTemplate.replace('{{item}}', l)).join('');
+            const skillsLanguagesSection = (skills || languages) ? skillsLanguagesSectionTemplate.replace('{{skills}}', skills).replace('{{languages}}', languages) : '';
+            template = template.replace('{{skills_languages_section}}', skillsLanguagesSection);
+
+            return template
+                .replace('{{full_name}}', data.full_name)
+                .replace('{{email}}', data.email)
+                .replace('{{phone_number}}', data.phone_number)
+                .replace('{{address}}', data.address)
+                .replace('{{linkedin_profile}}', data.linkedin_profile)
+                .replace('{{summary}}', data.summary);
+        }
+
+        function processCoverLetterTemplate(data) {
+            return coverLetterTemplate
+                .replace(/{{full_name}}/g, data.full_name)
+                .replace(/{{email}}/g, data.email)
+                .replace(/{{phone_number}}/g, data.phone_number)
+                .replace(/{{address}}/g, data.address)
+                .replace(/{{date}}/g, data.date)
+                .replace(/{{hiring_manager_name}}/g, data.hiring_manager_name)
+                .replace(/{{company_name}}/g, data.company_name)
+                .replace(/{{company_address}}/g, data.company_address)
+                .replace(/{{job_title_applied_for}}/g, data.job_title_applied_for)
+                .replace(/{{platform}}/g, data.platform)
+                .replace(/{{company_specifics}}/g, data.company_specifics)
+                .replace(/{{relevant_skills}}/g, data.relevant_skills.map(s => `<strong>${s}</strong>`).join(', '))
+                .replace(/{{previous_experience_highlight}}/g, data.previous_experience_highlight)
+                .replace(/{{why_interested}}/g, data.why_interested);
+        }
+
+        function downloadAsPDF(content, fileName) {
+            const { jsPDF } = window.jspdf;
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.innerHTML = content;
+            document.body.appendChild(container);
+
+            const contentElement = container.querySelector('.container');
+            
+            html2canvas(contentElement, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(fileName);
+                document.body.removeChild(container);
+            });
+        }
+    </script>
+</body>
+</html>
